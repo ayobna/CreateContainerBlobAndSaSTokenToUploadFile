@@ -15,13 +15,14 @@ namespace StorageTest.Services
     {
         readonly string connectionString;
         readonly string blobContainerName;
+        readonly string blobName;
         public SasToken(IOptions<BlobEventSettings> _blobEventSettings)
         {
              connectionString = _blobEventSettings.Value.connectionString;
              blobContainerName = _blobEventSettings.Value.blobContainerName;
-          //   blobName = _blobEventSettings.Value.blobName;
+             blobName = _blobEventSettings.Value.blobName;
         }
-        public Uri GetSasUri( string blobImageName)
+        public Uri GetSasUri( )
         {
             try
             {
