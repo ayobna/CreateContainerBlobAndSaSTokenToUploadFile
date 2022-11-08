@@ -28,12 +28,15 @@ namespace StorageTest.Services
 
                 //Create Reference to Azure Blob
                 CloudBlobClient blobClient = storageacc.CreateCloudBlobClient();
-                             BlobContainerPermissions blobContainerPermissions = new BlobContainerPermissions() { PublicAccess=BlobContainerPublicAccessType.Blob};
-                //The next 2 lines create if not exists a container named "democontainer"
+          BlobContainerPermissions blobContainerPermissions = new BlobContainerPermissions() { PublicAccess=BlobContainerPublicAccessType.Blob};
+                                   ////The next 2 lines create if not exists a container named "democontainer"
                 CloudBlobContainer container = blobClient.GetContainerReference(newContainer);
-         
-                await container.CreateIfNotExistsAsync();
-                await container.SetPermissionsAsync(blobContainerPermissions);
+                if (await container.ExistsAsync())
+                {
+                    await container.CreateIfNotExistsAsync();
+                    await container.SetPermissionsAsync(blobContainerPermissions);
+                }
+
             }
             catch (Exception ex)
             {

@@ -24,9 +24,11 @@ namespace StorageTest.Services
         public Uri GetSasUri( string blobImageName)
         {
             try
-            {              
-                BlobClient blobClient1 = new BlobClient(connectionString, blobContainerName, blobImageName);
-                return  GetServiceSasUriForBlob(blobClient1);
+            {
+                BlobContainerClient blobContainerClient = new BlobContainerClient(connectionString, blobContainerName);
+                return GetServiceSasUriForContainer(blobContainerClient);
+//             or   BlobClient blobClient1 = new BlobClient(connectionString, blobContainerName, blobImageName);
+//              return  GetServiceSasUriForBlob(blobClient1);
 
             }
             catch (Exception ex)
@@ -72,7 +74,42 @@ namespace StorageTest.Services
                 return null;
             }
         }
+        private static Uri GetServiceSasUriForContainer(BlobContainerClient containerClient,
+                                          string storedPolicyName = null)
+        {
+            // Check whether this BlobContainerClient object has been authorized with Shared Key.
+            if (containerClient.CanGenerateSasUri)
+            {
+                // Create a SAS token that's valid for one hour.
+                BlobSasBuilder sasBuilder = new BlobSasBuilder()
+                {
+                    BlobContainerName = containerClient.Name,
+                    Resource = "c"
+                };
 
+                if (storedPolicyName == null)
+                {
+                    sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddHours(1);
+                    sasBuilder.SetPermissions(BlobContainerSasPermissions.Write);
+                }
+                else
+                {
+                    sasBuilder.Identifier = storedPolicyName;
+                }
+
+                Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
+                Console.WriteLine("SAS URI for blob container is: {0}", sasUri);
+                Console.WriteLine();
+
+                return sasUri;
+            }
+            else
+            {
+                Console.WriteLine(@"BlobContainerClient must be authorized with Shared Key 
+                          credentials to create a service SAS.");
+                return null;
+            }
+        }
 
     }
 
